@@ -75,7 +75,7 @@ def obtener_articulos():
         
         articulos_list = []
         for art in articulos:
-            # Obtener tags 
+           
             tags = cur.execute("""
                 SELECT t.id, t.name, t.url 
                 FROM tags t
@@ -83,7 +83,6 @@ def obtener_articulos():
                 WHERE at.article_id = :articulo_id
             """, articulo_id=art[0]).fetchall()
             
-            # Obtener categorías del artículo
             categorias = cur.execute("""
                 SELECT c.id, c.name, c.url 
                 FROM categories c
@@ -91,7 +90,6 @@ def obtener_articulos():
                 WHERE ac.article_id = :articulo_id
             """, articulo_id=art[0]).fetchall()
             
-            # Contar comentarios
             count_comentarios = cur.callfunc("count_comments", int, [art[0]])
             
             articulos_list.append({
@@ -350,7 +348,6 @@ def asignar_categoria_articulo(articulo_id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-# Contar comentarios de un artículo
 @app.route('/api/articulos/<int:articulo_id>/comentarios/count', methods=['GET'])
 def contar_comentarios_articulo(articulo_id):
     try:
@@ -382,13 +379,5 @@ def eliminar_articulo(articulo_id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
-    print("🚀 Iniciando servidor Blog Manager en http://localhost:5000")
-    print("📊 Funcionalidades implementadas:")
-    print("   ✅ Gestión de usuarios")
-    print("   ✅ Gestión de artículos (con tags, categorías y conteo de comentarios)")
-    print("   ✅ Gestión de comentarios")
-    print("   ✅ Gestión de tags y categorías")
-    print("   ✅ Relaciones muchos a muchos")
-    print("   ✅ Conteo de comentarios")
-    print("   ✅ Eliminación de artículos")
+    print(" Iniciando servidor Blog Manager en http://localhost:5000")
     app.run(debug=True, port=5000)
