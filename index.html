@@ -214,7 +214,7 @@
             }
         }
 
-        // VISTA USUARIOS
+        // ========== VISTA USUARIOS ==========
         async function cargarVistaUsuarios() {
             return `
                 <div>
@@ -224,7 +224,7 @@
                         <h3>➕ Nuevo Usuario</h3>
                         <form onsubmit="crearUsuario(event)">
                             <div class="form-group">
-                                <label>Nombre:</label>
+                                <label>Nombre completo:</label>
                                 <input type="text" class="form-control" id="nombreUsuario" required>
                             </div>
                             <div class="form-group">
@@ -290,7 +290,7 @@
             }
         }
 
-        // VISTA ARTÍCULOS
+        // ========== VISTA ARTÍCULOS ==========
         async function cargarVistaArticulos() {
             const tags_res = await fetch(`${API_URL}/tags`);
             const tags_data = await tags_res.json();
@@ -407,7 +407,7 @@
             }
         }
 
-        // VISTA COMENTARIOS 
+        // ========== VISTA COMENTARIOS ==========
         async function cargarVistaComentarios() {
             const users_res = await fetch(`${API_URL}/usuarios`);
             const users_data = await users_res.json();
@@ -510,11 +510,11 @@
             }
         }
         
-        // VISTA UNIFICADA: TAGS Y CATEGORÍAS
+        // ========== VISTA UNIFICADA: TAGS Y CATEGORÍAS (NUEVA) ==========
         async function cargarVistaTagsCategorias() {
             return `
                 <div>
-                    <h2>🏷️Gestión: Tags y Categorías</h2>
+                    <h2>🏷️🗃️ Gestión Unificada: Tags y Categorías</h2>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         
                         <div>
@@ -568,7 +568,7 @@
             `;
         }
 
-        // Carga de Tags
+        // Lógica de carga de Tags
         async function cargarTags() { 
             try {
                 const response = await fetch(`${API_URL}/tags`);
@@ -582,6 +582,7 @@
                             <p>🔗 URL: ${tag.url || 'N/A'}</p>
                         </div>
                     `).join('');
+                    // Asegúrate de que la lista exista antes de intentar modificarla
                     if (lista) lista.innerHTML = html || '<p>No hay tags registrados.</p>';
                 }
             } catch (error) {
@@ -605,7 +606,7 @@
                     document.getElementById('nombreTag').value = '';
                     document.getElementById('urlTag').value = '';
                     cargarTags(); // Recarga la lista de tags
-                    cargarVistaArticulos(); 
+                    cargarVistaArticulos(); // Opcional: recargar Artículos para actualizar selectores
                 } else {
                     alert('❌ ' + data.error);
                 }
@@ -614,7 +615,7 @@
             }
         }
 
-        // Carga de Categorías
+        // Lógica de carga de Categorías
         async function cargarCategorias() { 
             try {
                 const response = await fetch(`${API_URL}/categories`);
@@ -651,7 +652,7 @@
                     document.getElementById('nombreCategoria').value = '';
                     document.getElementById('urlCategoria').value = '';
                     cargarCategorias(); // Recarga la lista de categorías
-                    cargarVistaArticulos(); 
+                    cargarVistaArticulos(); // Opcional: recargar Artículos para actualizar selectores
                 } else {
                     alert('❌ ' + data.error);
                 }
@@ -660,18 +661,21 @@
             }
         }
 
-        // Hace las funciones globales
+
+        // Hacer funciones globales
         window.cargarUsuarios = cargarUsuarios;
         window.cargarArticulos = cargarArticulos;
         window.cargarComentarios = cargarComentarios;
         window.crearUsuario = crearUsuario;
         window.crearArticulo = crearArticulo;
         window.crearComentario = crearComentario; 
+        
+        // Tags y Categorías
         window.cargarTags = cargarTags;
         window.crearTag = crearTag;
         window.cargarCategorias = cargarCategorias;
         window.crearCategoria = crearCategoria;
-        window.cargarVistaTagsCategorias = cargarVistaTagsCategorias; 
+        window.cargarVistaTagsCategorias = cargarVistaTagsCategorias; // Exponer la nueva vista
     </script>
 </body>
 </html>
