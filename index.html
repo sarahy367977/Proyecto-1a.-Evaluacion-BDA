@@ -60,7 +60,6 @@
 
         .menu-principal {
             display: grid;
-            /* 4 Opciones: Users, Articles, Tags/Cats, Comments */
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
             gap: 1rem;
             padding: 2rem;
@@ -189,7 +188,6 @@
     <script>
         const API_URL = 'http://localhost:5000/api';
 
-        // Navegación entre secciones
         async function cargarSeccion(seccion) {
             const contenido = document.getElementById('contenido');
             
@@ -214,7 +212,6 @@
             }
         }
 
-        // ========== VISTA USUARIOS ==========
         async function cargarVistaUsuarios() {
             return `
                 <div>
@@ -290,7 +287,6 @@
             }
         }
 
-        // ========== VISTA ARTÍCULOS ==========
         async function cargarVistaArticulos() {
             const tags_res = await fetch(`${API_URL}/tags`);
             const tags_data = await tags_res.json();
@@ -407,7 +403,6 @@
             }
         }
 
-        // ========== VISTA COMENTARIOS ==========
         async function cargarVistaComentarios() {
             const users_res = await fetch(`${API_URL}/usuarios`);
             const users_data = await users_res.json();
@@ -510,7 +505,6 @@
             }
         }
         
-        // ========== VISTA UNIFICADA: TAGS Y CATEGORÍAS (NUEVA) ==========
         async function cargarVistaTagsCategorias() {
             return `
                 <div>
@@ -568,7 +562,6 @@
             `;
         }
 
-        // Lógica de carga de Tags
         async function cargarTags() { 
             try {
                 const response = await fetch(`${API_URL}/tags`);
@@ -582,7 +575,6 @@
                             <p>🔗 URL: ${tag.url || 'N/A'}</p>
                         </div>
                     `).join('');
-                    // Asegúrate de que la lista exista antes de intentar modificarla
                     if (lista) lista.innerHTML = html || '<p>No hay tags registrados.</p>';
                 }
             } catch (error) {
@@ -605,8 +597,8 @@
                     alert('✅ ' + data.mensaje);
                     document.getElementById('nombreTag').value = '';
                     document.getElementById('urlTag').value = '';
-                    cargarTags(); // Recarga la lista de tags
-                    cargarVistaArticulos(); // Opcional: recargar Artículos para actualizar selectores
+                    cargarTags();
+                    cargarVistaArticulos();
                 } else {
                     alert('❌ ' + data.error);
                 }
@@ -615,7 +607,6 @@
             }
         }
 
-        // Lógica de carga de Categorías
         async function cargarCategorias() { 
             try {
                 const response = await fetch(`${API_URL}/categories`);
@@ -651,8 +642,8 @@
                     alert('✅ ' + data.mensaje);
                     document.getElementById('nombreCategoria').value = '';
                     document.getElementById('urlCategoria').value = '';
-                    cargarCategorias(); // Recarga la lista de categorías
-                    cargarVistaArticulos(); // Opcional: recargar Artículos para actualizar selectores
+                    cargarCategorias(); 
+                    cargarVistaArticulos(); 
                 } else {
                     alert('❌ ' + data.error);
                 }
@@ -661,21 +652,17 @@
             }
         }
 
-
-        // Hacer funciones globales
         window.cargarUsuarios = cargarUsuarios;
         window.cargarArticulos = cargarArticulos;
         window.cargarComentarios = cargarComentarios;
         window.crearUsuario = crearUsuario;
         window.crearArticulo = crearArticulo;
         window.crearComentario = crearComentario; 
-        
-        // Tags y Categorías
         window.cargarTags = cargarTags;
         window.crearTag = crearTag;
         window.cargarCategorias = cargarCategorias;
         window.crearCategoria = crearCategoria;
-        window.cargarVistaTagsCategorias = cargarVistaTagsCategorias; // Exponer la nueva vista
+        window.cargarVistaTagsCategorias = cargarVistaTagsCategorias;
     </script>
 </body>
 </html>
