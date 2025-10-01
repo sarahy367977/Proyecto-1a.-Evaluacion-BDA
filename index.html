@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 Blog Manager</title>
+    <style>
+        :root {
+            --primary: #7E57C2;
+            --success: #66BB6A;
+            --info: #42A5F5;
+            --warning: #FFA726;
+            --light: #FAFAFA;
+            --dark: #37474F;
+            --white: #FFFFFF;
+            --card: #FFFFFF;
+            --border: #E0E0E0;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--primary);
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .menu-principal {
+            display: grid;
+            /* 4 Opciones: Users, Articles, Tags/Cats, Comments */
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 1rem;
+            padding: 2rem;
+            background: var(--white);
+            margin: 0 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px var(--shadow);
+            transform: translateY(-30px);
+        }
+
+        .btn {
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--white);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .btn-success { background: var(--success); }
+        .btn-info { background: var(--info); }
+        .btn-warning { background: var(--warning); }
+        .btn-primary { background: var(--primary); }
+
+        .contenido {
+            flex: 1;
+            padding: 0 2rem 2rem;
+        }
+
+        .bienvenida {
+            text-align: center;
+            padding: 2rem;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .tarjeta {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px var(--shadow);
+            border-left: 4px solid var(--info);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+        }
+        
+        select.form-control[multiple] {
+            min-height: 100px;
+        }
+
+        .lista-contenedor {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">🌸 Blog Manager</h1>
+            <p class="subtitle">Sistema de Gestión de Contenidos</p>
+        </header>
+
+        <nav class="menu-principal">
+            <button class="btn btn-success" onclick="cargarSeccion('usuarios')">
+                👥 Usuarios
+            </button>
+            <button class="btn btn-info" onclick="cargarSeccion('articulos')">
+                📝 Artículos
+            </button>
+            <button class="btn btn-primary" onclick="cargarSeccion('tags-categorias')">
+                🏷️ Tags & Categorías
+            </button>
+            <button class="btn btn-warning" onclick="cargarSeccion('comentarios')">
+                💬 Comentarios
+            </button>
+        </nav>
+
+        <main id="contenido" class="contenido">
+            <div class="bienvenida">
+                <h2>¡Bienvenido al Blog Manager!</h2>
+                <p>Selecciona una opción del menú para comenzar</p>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>© 2024 Blog Manager • Versión Web</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        // Navegación entre secciones
+        async function cargarSeccion(seccion) {
+            const contenido = document.getElementById('contenido');
+            
+            switch(seccion) {
+                case 'usuarios':
+                    contenido.innerHTML = await cargarVistaUsuarios();
+                    cargarUsuarios();
+                    break;
+                case 'articulos':
+                    contenido.innerHTML = await cargarVistaArticulos();
+                    cargarArticulos();
+                    break;
+                case 'tags-categorias':
+                    contenido.innerHTML = await cargarVistaTagsCategorias();
+                    cargarTags();
+                    cargarCategorias();
+                    break;
+                case 'comentarios':
+                    contenido.innerHTML = await cargarVistaComentarios();
+                    cargarComentarios();
+                    break;
+            }
+        }
+
+        // VISTA USUARIOS
+        async function cargarVistaUsuarios() {
+            return `
+                <div>
+                    <h2>👥 Gestión de Usuarios</h2>
+                    
+                    <div class="tarjeta">
+                        <h3>➕ Nuevo Usuario</h3>
+                        <form onsubmit="crearUsuario(event)">
+                            <div class="form-group">
+                                <label>Nombre:</label>
+                                <input type="text" class="form-control" id="nombreUsuario" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Correo electrónico:</label>
+                                <input type="email" class="form-control" id="emailUsuario" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">💾 Guardar Usuario</button>
+                        </form>
+                    </div>
+                    
+                    <div class="tarjeta">
+                        <h3>👥 Usuarios Registrados</h3>
+                        <div id="lista-usuarios" class="lista-contenedor">
+                            Cargando usuarios...
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        async function cargarUsuarios() { 
+            try {
+                const response = await fetch(`${API_URL}/usuarios`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const lista = document.getElementById('lista-usuarios');
+                    let html = '';
+                    data.usuarios.forEach(usuario => {
+                        html += `
+                            <div class="tarjeta">
+                                <h3>👤 ${usuario.nombre}</h3>
+                                <p>📧 ${usuario.email}</p>
+                            </div>
+                        `;
+                    });
+                    lista.innerHTML = html || '<p>No hay usuarios registrados.</p>';
+                }
+            } catch (error) {
+                document.getElementById('lista-usuarios').innerHTML = '<p>Error al cargar usuarios</p>';
+            }
+        }
+        async function crearUsuario(event) { 
+            event.preventDefault();
+            const nombre = document.getElementById('nombreUsuario').value;
+            const email = document.getElementById('emailUsuario').value;
+            try {
+                const response = await fetch(`${API_URL}/usuarios`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ nombre, email })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ ' + data.mensaje);
+                    document.getElementById('nombreUsuario').value = '';
+                    document.getElementById('emailUsuario').value = '';
+                    cargarUsuarios();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('Error al crear usuario');
+            }
+        }
+
+        // VISTA ARTÍCULOS
+        async function cargarVistaArticulos() {
+            const tags_res = await fetch(`${API_URL}/tags`);
+            const tags_data = await tags_res.json();
+            const tags_html = tags_data.success 
+                ? tags_data.tags.map(t => `<option value="${t.id}">${t.name}</option>`).join('') 
+                : '<option disabled>Crea tags primero</option>';
+
+            const cats_res = await fetch(`${API_URL}/categories`);
+            const cats_data = await cats_res.json();
+            const cats_html = cats_data.success 
+                ? cats_data.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('') 
+                : '<option disabled>Crea categorías primero</option>';
+
+            return `
+                <div>
+                    <h2>📝 Gestión de Artículos</h2>
+                    
+                    <div class="tarjeta">
+                        <h3>📄 Nuevo Artículo</h3>
+                        <form onsubmit="crearArticulo(event)">
+                            <div class="form-group">
+                                <label>Título:</label>
+                                <input type="text" class="form-control" id="tituloArticulo" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Contenido:</label>
+                                <textarea class="form-control" id="contenidoArticulo" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Tags (selecciona uno o más):</label>
+                                <select class="form-control" id="tagsArticulo" multiple>
+                                    ${tags_html}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Categorías (selecciona uno o más):</label>
+                                <select class="form-control" id="categoriasArticulo" multiple>
+                                    ${cats_html}
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-info">🚀 Publicar</button>
+                        </form>
+                    </div>
+                    
+                    <div class="tarjeta">
+                        <h3>📚 Artículos Publicados</h3>
+                        <div id="lista-articulos" class="lista-contenedor">
+                            Cargando artículos...
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        async function cargarArticulos() { 
+            try {
+                const response = await fetch(`${API_URL}/articulos`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const lista = document.getElementById('lista-articulos');
+                    let html = '';
+                    data.articulos.forEach(articulo => {
+                        html += `
+                            <div class="tarjeta">
+                                <h3>📖 ${articulo.titulo}</h3>
+                                <p>✍️ ${articulo.autor} • 📅 ${articulo.fecha}</p>
+                            </div>
+                        `;
+                    });
+                    lista.innerHTML = html || '<p>No hay artículos.</p>';
+                }
+            } catch (error) {
+                document.getElementById('lista-articulos').innerHTML = '<p>Error al cargar artículos</p>';
+            }
+        }
+        async function crearArticulo(event) { 
+            event.preventDefault();
+            const titulo = document.getElementById('tituloArticulo').value;
+            const contenido = document.getElementById('contenidoArticulo').value;
+            
+            const tags_select = document.getElementById('tagsArticulo');
+            const tags_ids = Array.from(tags_select.selectedOptions).map(option => parseInt(option.value));
+            
+            const cats_select = document.getElementById('categoriasArticulo');
+            const categories_ids = Array.from(cats_select.selectedOptions).map(option => parseInt(option.value));
+            
+            try {
+                const response = await fetch(`${API_URL}/articulos`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        titulo, 
+                        contenido, 
+                        usuario_id: 1, 
+                        tags_ids, 
+                        categories_ids 
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ ' + data.mensaje);
+                    document.getElementById('tituloArticulo').value = '';
+                    document.getElementById('contenidoArticulo').value = '';
+                    tags_select.selectedIndex = -1;
+                    cats_select.selectedIndex = -1;
+                    cargarArticulos();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('Error al crear artículo');
+            }
+        }
+
+        // VISTA COMENTARIOS 
+        async function cargarVistaComentarios() {
+            const users_res = await fetch(`${API_URL}/usuarios`);
+            const users_data = await users_res.json();
+            const users_html = users_data.success 
+                ? users_data.usuarios.map(u => `<option value="${u.id}">${u.nombre}</option>`).join('') 
+                : '<option disabled>Error al cargar usuarios</option>';
+            
+            const articles_res = await fetch(`${API_URL}/articulos`);
+            const articles_data = await articles_res.json();
+            const articles_html = articles_data.success
+                ? articles_data.articulos.map(a => `<option value="${a.id}">${a.titulo}</option>`).join('')
+                : '<option disabled>Error al cargar artículos</option>';
+
+            return `
+                <div>
+                    <h2>💬 Comentarios del Blog</h2>
+                    
+                    <div class="tarjeta">
+                        <h3>➕ Nuevo Comentario</h3>
+                        <form onsubmit="crearComentario(event)">
+                            <div class="form-group">
+                                <label>Autor:</label>
+                                <select class="form-control" id="autorComentario" required>
+                                    ${users_html}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Artículo:</label>
+                                <select class="form-control" id="articuloComentario" required>
+                                    ${articles_html}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Texto:</label>
+                                <textarea class="form-control" id="textoComentario" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-warning">📝 Comentar</button>
+                        </form>
+                    </div>
+
+                    <div class="tarjeta">
+                        <h3>💭 Todos los Comentarios</h3>
+                        <div id="lista-comentarios" class="lista-contenedor">
+                            Cargando comentarios...
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function cargarComentarios() { 
+            try {
+                const response = await fetch(`${API_URL}/comentarios`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const lista = document.getElementById('lista-comentarios');
+                    let html = '';
+                    data.comentarios.forEach(comentario => {
+                        html += `
+                            <div class="tarjeta" style="border-left: 4px solid var(--warning);"> 
+                                <p>"${comentario.texto}"</p>
+                                <p><small>👤 ${comentario.autor} en "${comentario.articulo_titulo}"</small></p>
+                                <p><small>📅 ${comentario.fecha}</small></p>
+                            </div>
+                        `;
+                    });
+                    lista.innerHTML = html || '<p>No hay comentarios.</p>';
+                }
+            } catch (error) {
+                document.getElementById('lista-comentarios').innerHTML = '<p>Error al cargar comentarios</p>';
+            }
+        }
+
+        async function crearComentario(event) {
+            event.preventDefault();
+            
+            const article_id = document.getElementById('articuloComentario').value;
+            const user_id = document.getElementById('autorComentario').value;
+            const text = document.getElementById('textoComentario').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/comentarios`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ article_id: parseInt(article_id), user_id: parseInt(user_id), text })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ ' + data.mensaje);
+                    document.getElementById('textoComentario').value = '';
+                    cargarComentarios();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('Error al crear comentario');
+            }
+        }
+        
+        // VISTA UNIFICADA: TAGS Y CATEGORÍAS
+        async function cargarVistaTagsCategorias() {
+            return `
+                <div>
+                    <h2>🏷️Gestión: Tags y Categorías</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        
+                        <div>
+                            <div class="tarjeta" style="border-left: 4px solid var(--warning);">
+                                <h3>➕ Nuevo Tag</h3>
+                                <form onsubmit="crearTag(event)">
+                                    <div class="form-group">
+                                        <label>Nombre del Tag:</label>
+                                        <input type="text" class="form-control" id="nombreTag" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>URL (opcional):</label>
+                                        <input type="text" class="form-control" id="urlTag">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">💾 Guardar Tag</button>
+                                </form>
+                            </div>
+                            <div class="tarjeta" style="border-left: 4px solid var(--warning);">
+                                <h3>🏷️ Tags Existentes</h3>
+                                <div id="lista-tags" class="lista-contenedor">
+                                    Cargando tags...
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="tarjeta" style="border-left: 4px solid var(--info);">
+                                <h3>➕ Nueva Categoría</h3>
+                                <form onsubmit="crearCategoria(event)">
+                                    <div class="form-group">
+                                        <label>Nombre de la Categoría:</label>
+                                        <input type="text" class="form-control" id="nombreCategoria" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>URL (opcional):</label>
+                                        <input type="text" class="form-control" id="urlCategoria">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">💾 Guardar Categoría</button>
+                                </form>
+                            </div>
+                            <div class="tarjeta" style="border-left: 4px solid var(--info);">
+                                <h3>🗃️ Categorías Existentes</h3>
+                                <div id="lista-categorias" class="lista-contenedor">
+                                    Cargando categorías...
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        // Carga de Tags
+        async function cargarTags() { 
+            try {
+                const response = await fetch(`${API_URL}/tags`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const lista = document.getElementById('lista-tags');
+                    let html = data.tags.map(tag => `
+                        <div class="tarjeta">
+                            <h3>#${tag.name} (ID: ${tag.id})</h3>
+                            <p>🔗 URL: ${tag.url || 'N/A'}</p>
+                        </div>
+                    `).join('');
+                    if (lista) lista.innerHTML = html || '<p>No hay tags registrados.</p>';
+                }
+            } catch (error) {
+                const lista = document.getElementById('lista-tags');
+                if (lista) lista.innerHTML = '<p>Error al cargar tags</p>';
+            }
+        }
+        async function crearTag(event) {
+            event.preventDefault();
+            const name = document.getElementById('nombreTag').value;
+            const url = document.getElementById('urlTag').value;
+            try {
+                const response = await fetch(`${API_URL}/tags`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name, url: url || null })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ ' + data.mensaje);
+                    document.getElementById('nombreTag').value = '';
+                    document.getElementById('urlTag').value = '';
+                    cargarTags(); // Recarga la lista de tags
+                    cargarVistaArticulos(); 
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('Error al crear tag');
+            }
+        }
+
+        // Carga de Categorías
+        async function cargarCategorias() { 
+            try {
+                const response = await fetch(`${API_URL}/categories`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const lista = document.getElementById('lista-categorias');
+                    let html = data.categories.map(cat => `
+                        <div class="tarjeta">
+                            <h3>${cat.name} (ID: ${cat.id})</h3>
+                            <p>🔗 URL: ${cat.url || 'N/A'}</p>
+                        </div>
+                    `).join('');
+                    if (lista) lista.innerHTML = html || '<p>No hay categorías registradas.</p>';
+                }
+            } catch (error) {
+                const lista = document.getElementById('lista-categorias');
+                if (lista) lista.innerHTML = '<p>Error al cargar categorías</p>';
+            }
+        }
+        async function crearCategoria(event) {
+            event.preventDefault();
+            const name = document.getElementById('nombreCategoria').value;
+            const url = document.getElementById('urlCategoria').value;
+            try {
+                const response = await fetch(`${API_URL}/categories`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name, url: url || null })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ ' + data.mensaje);
+                    document.getElementById('nombreCategoria').value = '';
+                    document.getElementById('urlCategoria').value = '';
+                    cargarCategorias(); // Recarga la lista de categorías
+                    cargarVistaArticulos(); 
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('Error al crear categoría');
+            }
+        }
+
+        // Hace las funciones globales
+        window.cargarUsuarios = cargarUsuarios;
+        window.cargarArticulos = cargarArticulos;
+        window.cargarComentarios = cargarComentarios;
+        window.crearUsuario = crearUsuario;
+        window.crearArticulo = crearArticulo;
+        window.crearComentario = crearComentario; 
+        window.cargarTags = cargarTags;
+        window.crearTag = crearTag;
+        window.cargarCategorias = cargarCategorias;
+        window.crearCategoria = crearCategoria;
+        window.cargarVistaTagsCategorias = cargarVistaTagsCategorias; 
+    </script>
+</body>
+</html>
