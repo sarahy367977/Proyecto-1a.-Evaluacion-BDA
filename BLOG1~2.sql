@@ -106,3 +106,7 @@ INSERT INTO article_categories (article_id, category_id) VALUES (5, 3);
 INSERT INTO article_categories (article_id, category_id) VALUES (5, 4);
 
 COMMIT;
+
+
+
+select * from users;
